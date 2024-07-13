@@ -1,0 +1,8 @@
+### Add a new contact
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+  "name": "Clara",
+  "number": "1-800-RUN-YOU-CLEVER-BOY"
+}

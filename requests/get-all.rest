@@ -1,0 +1,2 @@
+### Get all entries
+GET http://localhost:3001/api/persons/
