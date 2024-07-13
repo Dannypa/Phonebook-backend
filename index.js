@@ -29,6 +29,17 @@ app.get('/api/persons', (request, response) => {
     response.json(contacts)
 })
 
+app.get('/api/persons/:id', (request, response) => {
+    const rid = request.params.id
+    const contact = contacts.find(p => p.id === rid)
+
+    if (contact) {
+        response.json(contact)
+    } else {
+        response.status(400).end()
+    }
+})
+
 app.get('/info', (request, response) => {
     const page = `<div>
         <p>Phonebook has info about ${contacts.length} people.</p>
