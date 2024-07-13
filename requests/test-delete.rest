@@ -1,0 +1,5 @@
+### Get all entries
+GET http://localhost:3001/api/persons/
+
+### Delete an entry with id=1
+DELETE http://localhost:3001/api/persons/1

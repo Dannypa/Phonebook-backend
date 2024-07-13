@@ -40,6 +40,13 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
+app.delete('/api/persons/:id', (request, response) => {
+    const rid = request.params.id
+    contacts = contacts.filter(p => p.id !== rid) // not optimal generally but in our case the best we can do
+
+    response.status(204).end()
+})
+
 app.get('/info', (request, response) => {
     const page = `<div>
         <p>Phonebook has info about ${contacts.length} people.</p>
