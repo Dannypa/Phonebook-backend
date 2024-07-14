@@ -23,6 +23,8 @@ app.use(morgan(function (tokens, req, res) {
     ].join(' ')
 }))
 
+app.use(express.static('dist'))
+
 
 let contacts = [{
     "id": "1", "name": "Arto Hellas", "number": "040-123456"
@@ -67,9 +69,10 @@ app.post('/api/persons', (request, response) => {
     }
 
     const newId = Math.round(Math.random() * 1e9).toString() // lmao please work
-    contacts.push({id: newId, name, number})
+    const newContact = {id: newId, name, number}
+    contacts.push(newContact)
 
-    response.status(200).end()
+    response.json(newContact)
 })
 
 
