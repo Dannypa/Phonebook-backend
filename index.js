@@ -1,6 +1,28 @@
 const express = require('express')
 const app = express()
 app.use(express.json())
+var morgan = require('morgan')
+// morgan.token('content', function (req, res) { return req.content })
+
+const getPostBody = (req) => {
+    if (req["method"] === "POST") {
+        return JSON.stringify(req.body)
+    } else {
+        return ''
+    }
+}
+
+app.use(morgan(function (tokens, req, res) {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        getPostBody(req)
+    ].join(' ')
+}))
+
 
 let contacts = [{
     "id": "1", "name": "Arto Hellas", "number": "040-123456"
@@ -47,7 +69,7 @@ app.post('/api/persons', (request, response) => {
     const newId = Math.round(Math.random() * 1e9).toString() // lmao please work
     contacts.push({id: newId, name, number})
 
-    response.status(400).end()
+    response.status(200).end()
 })
 
 
