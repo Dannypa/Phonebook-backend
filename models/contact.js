@@ -18,5 +18,13 @@ const contactSchema = new mongoose.Schema({
     number: String,
 })
 
+contactSchema.set('toJSON', { // we need that as frontend expects id instead of _id
+    transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString()
+        delete returnedObject._id
+        delete returnedObject.__v
+    }
+})
+
 // i really want it to be named contacts.
 module.exports = mongoose.model('Contact', contactSchema)

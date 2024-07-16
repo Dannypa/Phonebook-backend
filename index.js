@@ -79,6 +79,7 @@ app.post('/api/persons', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     const rid = request.params.id
+    console.log(rid)
     Contact.findByIdAndDelete(rid).then(_ => {
         response.status(204).end()
     })
