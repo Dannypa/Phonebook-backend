@@ -1,2 +1,2 @@
-### Delete an entry with id=1
-DELETE http://localhost:3001/api/persons/1
+### Delete an entry with some id
+DELETE http://localhost:3001/api/persons/6696fc1cc6463ff607d252c7

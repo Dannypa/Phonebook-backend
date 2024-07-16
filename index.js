@@ -1,8 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 app.use(express.json())
-var morgan = require('morgan')
-// morgan.token('content', function (req, res) { return req.content })
+const morgan = require('morgan')
 
 const getPostBody = (req) => {
     if (req["method"] === "POST") {
@@ -24,32 +24,33 @@ app.use(morgan(function (tokens, req, res) {
 }))
 
 app.use(express.static('dist'))
+const Contact = require('./models/contact')
 
 
-let contacts = [{
-    "id": "1", "name": "Arto Hellas", "number": "040-123456"
-}, {
-    "id": "2", "name": "Ada Lovelace", "number": "39-44-5323523"
-}, {
-    "id": "3", "name": "Dan Abramov", "number": "12-43-234345"
-}, {
-    "id": "4", "name": "Mary Poppendieck", "number": "39-23-6423122"
-}]
+// let contacts = [{
+//     "id": "1", "name": "Arto Hellas", "number": "040-123456"
+// }, {
+//     "id": "2", "name": "Ada Lovelace", "number": "39-44-5323523"
+// }, {
+//     "id": "3", "name": "Dan Abramov", "number": "12-43-234345"
+// }, {
+//     "id": "4", "name": "Mary Poppendieck", "number": "39-23-6423122"
+// }]
 
 // i wanted to have "contacts", but fine. you win.
 app.get('/api/persons', (request, response) => {
-    response.json(contacts)
+    Contact.find({}).then(contacts => response.json(contacts))
 })
 
 app.get('/api/persons/:id', (request, response) => {
     const rid = request.params.id
-    const contact = contacts.find(p => p.id === rid)
-
-    if (contact) {
-        response.json(contact)
-    } else {
-        response.status(400).end()
-    }
+    Contact.findById(rid).then(contact => {
+        if (contact) {
+            response.json(contact)
+        } else {
+            response.status(400).end()
+        }
+    })
 })
 
 app.post('/api/persons', (request, response) => {
@@ -64,34 +65,36 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({error: "number is missing"})
     }
 
-    if (contacts.find(p => p.name === name)) {
-        return response.status(400).json({error: "names must be unique"})
-    }
-
-    const newId = Math.round(Math.random() * 1e9).toString() // lmao please work
-    const newContact = {id: newId, name, number}
-    contacts.push(newContact)
-
-    response.json(newContact)
+    Contact.find({name}).then(result => {
+        if (result.length > 0) {
+            return response.status(400).json({error: "names must be unique"})
+        } else {
+            const newId = Math.round(Math.random() * 1e9).toString() // lmao please work
+            const newContact = new Contact({id: newId, name, number})
+            newContact.save().then(_ => response.json(newContact))
+        }
+    })
 })
 
 
 app.delete('/api/persons/:id', (request, response) => {
     const rid = request.params.id
-    contacts = contacts.filter(p => p.id !== rid) // not optimal generally but in our case the best we can do
-
-    response.status(204).end()
+    Contact.findByIdAndDelete(rid).then(_ => {
+        response.status(204).end()
+    })
 })
 
 app.get('/info', (request, response) => {
-    const page = `<div>
-        <p>Phonebook has info about ${contacts.length} people.</p>
-        <p>${Date()}</p>
-    </div>`
-    response.send(page)
+    Contact.find({}).then(result => {
+        const page = `<div>
+            <p>Phonebook has info about ${result.length} people.</p>
+            <p>${Date()}</p>
+        </div>`
+        response.send(page)
+    })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
