@@ -1,17 +1,16 @@
 const mongoose = require('mongoose')
-const assert = require("node:assert")
-require("dotenv").config()
+require('dotenv').config()
 
 const uri = process.env.MONGODB_URI
 // mongoose.set('strictQuery', false) // looks like it is not needed in the current version of mongoose
 
 console.log(`connecting to ${uri}...`)
 mongoose.connect(uri)
-    .then(result => {
+    .then(_ => {
         console.log('Successfully connected to the database!')
     }).catch(error => {
-    console.log(`Error when connecting to the db: ${error.message}`)
-})
+        console.log(`Error when connecting to the db: ${error.message}`)
+    })
 
 const contactSchema = new mongoose.Schema({
     name: {

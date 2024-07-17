@@ -1,6 +1,6 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
-const assert = require("node:assert")
+require('node:assert')
 
 if (![2, 4].includes(process.argv.length)) { // we need either 2 or 4 args
     console.log('wrong number of arguments')
@@ -24,14 +24,14 @@ const Contact = mongoose.model('Contact', contactSchema) // i really want it to 
 
 if (process.argv.length === 2) {
     Contact.find({}).then(result => {
-        console.log("contacts:")
+        console.log('contacts:')
         result.forEach(contact => console.log(`${contact.name} ${contact.number}`))
         mongoose.connection.close()
     })
 } else {
     console.assert(process.argv.length === 4)
     const [name, number] = process.argv.slice(2)
-    const newContact = new Contact({name, number})
+    const newContact = new Contact({ name, number })
     newContact.save().then(_ => {
         console.log(`added ${name} with number ${number} to the phonebook`)
         mongoose.connection.close()

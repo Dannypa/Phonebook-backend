@@ -6,7 +6,7 @@ app.use(express.json())
 const morgan = require('morgan')
 
 const getPostBody = (req) => {
-    if (req["method"] === "POST") {
+    if (req['method'] === 'POST') {
         return JSON.stringify(req.body)
     } else {
         return ''
@@ -19,7 +19,7 @@ app.use(morgan(function (tokens, req, res) {
 
 app.use(express.static('dist'))
 const Contact = require('./models/contact')
-const {request, response} = require("express")
+require('express')
 
 // i wanted to have "contacts", but fine. you win.
 app.get('/api/persons', (request, response, next) => {
@@ -41,12 +41,12 @@ app.post('/api/persons', (request, response, next) => {
     const name = request.body.name
     const number = request.body.number
 
-    Contact.find({name}).then(result => {
+    Contact.find({ name }).then(result => {
         if (result.length > 0) {
-            return response.status(400).json({error: "names must be unique"})
+            return response.status(400).json({ error: 'names must be unique' })
         } else {
             const newId = Math.round(Math.random() * 1e9).toString() // lmao please work
-            const newContact = new Contact({id: newId, name, number})
+            const newContact = new Contact({ id: newId, name, number })
             newContact.save().then(_ => response.json(newContact))
                 .catch(error => next(error))
         }
@@ -59,7 +59,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     const number = request.body.number
 
     const rid = request.params.id
-    Contact.findByIdAndUpdate(rid, {name, number}, {new: true, runValidators: true}).then(updated => {
+    Contact.findByIdAndUpdate(rid, { name, number }, { new: true, runValidators: true }).then(updated => {
         response.json(updated)
     }).catch(error => next(error))
 })
@@ -83,14 +83,14 @@ app.get('/info', (request, response, next) => {
     }).catch(error => next(error))
 })
 
-app.use((request, response) => response.status(404).send({error: 'unknown endpoint'}))
+app.use((request, response) => response.status(404).send({ error: 'unknown endpoint' }))
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
     if (error.name === 'CastError') {
-        return response.status(400).send({error: 'bad id'})
+        return response.status(400).send({ error: 'bad id' })
     } else if (error.name === 'ValidationError') {
-        return response.status(400).send({error: error.message})
+        return response.status(400).send({ error: error.message })
     }
 
     next(error)
