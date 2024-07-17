@@ -36,7 +36,7 @@ app.get('/api/persons/:id', (request, response, next) => {
     }).catch(error => next(error))
 })
 
-
+// todo: maybe bad code because request is passed? idk.
 const nameNumberCheck = (name, number, response) => {
     if (!name) {
         response.status(400).json({error: "name is missing"})
@@ -68,11 +68,16 @@ app.post('/api/persons', (request, response, next) => {
 })
 
 
-// app.put('/api/persons/:id', (request, response, next) => {
-//     const name = request.body.name
-//     const number = request.body.number
-//
-// })
+app.put('/api/persons/:id', (request, response, next) => {
+    const name = request.body.name
+    const number = request.body.number
+    if (!nameNumberCheck(name, number, response)) return
+
+    const rid = request.params.id
+    Contact.findByIdAndUpdate(rid, {name, number}, {new: true}).then(updated => {
+        response.json(updated)
+    }).catch(error => next(error))
+})
 
 
 app.delete('/api/persons/:id', (request, response, next) => {

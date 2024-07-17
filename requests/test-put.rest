@@ -1,0 +1,8 @@
+### Change an existing contact
+PUT http://localhost:3001/api/persons/6696f0e0193132ea807d20f8
+Content-Type: application/json
+
+{
+  "name": "hotline miami reference",
+  "number": "1-800-GETHELP"
+}

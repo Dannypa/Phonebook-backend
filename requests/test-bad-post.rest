@@ -6,3 +6,12 @@ Content-Type: application/json
   "name": "",
   "number": "1-800-RUNYOUCLEVERBOY"
 }
+
+### Try to add a contact with a name that already exists
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+  "name": "hotline miami reference",
+  "number": "пупупу.."
+}
