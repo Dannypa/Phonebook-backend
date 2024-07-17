@@ -13,36 +13,18 @@ const getPostBody = (req) => {
 }
 
 app.use(morgan(function (tokens, req, res) {
-    return [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        tokens.status(req, res),
-        tokens.res(req, res, 'content-length'), '-',
-        tokens['response-time'](req, res), 'ms',
-        getPostBody(req)
-    ].join(' ')
+    return [tokens.method(req, res), tokens.url(req, res), tokens.status(req, res), tokens.res(req, res, 'content-length'), '-', tokens['response-time'](req, res), 'ms', getPostBody(req)].join(' ')
 }))
 
 app.use(express.static('dist'))
 const Contact = require('./models/contact')
 
-
-// let contacts = [{
-//     "id": "1", "name": "Arto Hellas", "number": "040-123456"
-// }, {
-//     "id": "2", "name": "Ada Lovelace", "number": "39-44-5323523"
-// }, {
-//     "id": "3", "name": "Dan Abramov", "number": "12-43-234345"
-// }, {
-//     "id": "4", "name": "Mary Poppendieck", "number": "39-23-6423122"
-// }]
-
 // i wanted to have "contacts", but fine. you win.
-app.get('/api/persons', (request, response) => {
-    Contact.find({}).then(contacts => response.json(contacts))
+app.get('/api/persons', (request, response, next) => {
+    Contact.find({}).then(contacts => response.json(contacts)).catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const rid = request.params.id
     Contact.findById(rid).then(contact => {
         if (contact) {
@@ -50,10 +32,10 @@ app.get('/api/persons/:id', (request, response) => {
         } else {
             response.status(400).end()
         }
-    })
+    }).catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const name = request.body.name
     const number = request.body.number
 
@@ -73,27 +55,40 @@ app.post('/api/persons', (request, response) => {
             const newContact = new Contact({id: newId, name, number})
             newContact.save().then(_ => response.json(newContact))
         }
-    })
+    }).catch(error => next(error))
 })
 
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     const rid = request.params.id
     console.log(rid)
     Contact.findByIdAndDelete(rid).then(_ => {
         response.status(204).end()
-    })
+    }).catch(error => next(error))
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
     Contact.find({}).then(result => {
         const page = `<div>
             <p>Phonebook has info about ${result.length} people.</p>
             <p>${Date()}</p>
         </div>`
         response.send(page)
-    })
+    }).catch(error => next(error))
 })
+
+app.use((request, response) => response.status(404).send({error: 'unknown endpoint'}))
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({error: 'bad id'})
+    }
+
+    next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
