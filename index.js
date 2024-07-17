@@ -31,7 +31,7 @@ app.get('/api/persons/:id', (request, response, next) => {
         if (contact) {
             response.json(contact)
         } else {
-            response.status(400).end()
+            response.status(404).end()
         }
     }).catch(error => next(error))
 })
