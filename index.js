@@ -18,6 +18,7 @@ app.use(morgan(function (tokens, req, res) {
 
 app.use(express.static('dist'))
 const Contact = require('./models/contact')
+const {request, response} = require("express")
 
 // i wanted to have "contacts", but fine. you win.
 app.get('/api/persons', (request, response, next) => {
@@ -35,17 +36,25 @@ app.get('/api/persons/:id', (request, response, next) => {
     }).catch(error => next(error))
 })
 
+
+const nameNumberCheck = (name, number, response) => {
+    if (!name) {
+        response.status(400).json({error: "name is missing"})
+        return false
+    }
+    if (!number) {
+        response.status(400).json({error: "number is missing"})
+        return false
+    }
+    return true
+}
+
 app.post('/api/persons', (request, response, next) => {
     const name = request.body.name
     const number = request.body.number
 
-    if (!name) {
-        return response.status(400).json({error: "name is missing"})
-    }
+    if (!nameNumberCheck(name, number, response)) return
 
-    if (!number) {
-        return response.status(400).json({error: "number is missing"})
-    }
 
     Contact.find({name}).then(result => {
         if (result.length > 0) {
@@ -57,6 +66,13 @@ app.post('/api/persons', (request, response, next) => {
         }
     }).catch(error => next(error))
 })
+
+
+// app.put('/api/persons/:id', (request, response, next) => {
+//     const name = request.body.name
+//     const number = request.body.number
+//
+// })
 
 
 app.delete('/api/persons/:id', (request, response, next) => {
