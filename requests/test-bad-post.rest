@@ -15,3 +15,12 @@ Content-Type: application/json
   "name": "hotline miami reference",
   "number": "пупупу.."
 }
+
+### Try to add a contact with a name that is too short
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+  "name": "ho",
+  "number": "пупупу.."
+}

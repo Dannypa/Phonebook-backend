@@ -36,25 +36,9 @@ app.get('/api/persons/:id', (request, response, next) => {
     }).catch(error => next(error))
 })
 
-// todo: maybe bad code because request is passed? idk.
-const nameNumberCheck = (name, number, response) => {
-    if (!name) {
-        response.status(400).json({error: "name is missing"})
-        return false
-    }
-    if (!number) {
-        response.status(400).json({error: "number is missing"})
-        return false
-    }
-    return true
-}
-
 app.post('/api/persons', (request, response, next) => {
     const name = request.body.name
     const number = request.body.number
-
-    if (!nameNumberCheck(name, number, response)) return
-
 
     Contact.find({name}).then(result => {
         if (result.length > 0) {
@@ -63,18 +47,18 @@ app.post('/api/persons', (request, response, next) => {
             const newId = Math.round(Math.random() * 1e9).toString() // lmao please work
             const newContact = new Contact({id: newId, name, number})
             newContact.save().then(_ => response.json(newContact))
+                .catch(error => next(error))
         }
-    }).catch(error => next(error))
+    })
 })
 
 
 app.put('/api/persons/:id', (request, response, next) => {
     const name = request.body.name
     const number = request.body.number
-    if (!nameNumberCheck(name, number, response)) return
 
     const rid = request.params.id
-    Contact.findByIdAndUpdate(rid, {name, number}, {new: true}).then(updated => {
+    Contact.findByIdAndUpdate(rid, {name, number}, {new: true, runValidators: true}).then(updated => {
         response.json(updated)
     }).catch(error => next(error))
 })
@@ -102,9 +86,10 @@ app.use((request, response) => response.status(404).send({error: 'unknown endpoi
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
-
     if (error.name === 'CastError') {
         return response.status(400).send({error: 'bad id'})
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).send({error: error.message})
     }
 
     next(error)
